@@ -1,0 +1,173 @@
+-- 1. CONFIGURACIÓN INICIAL
+DROP DATABASE IF EXISTS onpe_maac;
+CREATE DATABASE onpe_maac;
+USE onpe_maac;
+
+-- ==========================================
+-- 2. TABLAS MAESTRAS (Sin dependencias)
+-- ==========================================
+
+CREATE TABLE rol (
+    id_rol INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_rol VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE estado (
+    id_estado INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_estado VARCHAR(50) NOT NULL
+);
+
+CREATE TABLE permiso (
+    id_permiso INT AUTO_INCREMENT PRIMARY KEY,
+    descripcion VARCHAR(100) NOT NULL
+);
+
+CREATE TABLE proceso_seleccion (
+    id_proceso INT AUTO_INCREMENT PRIMARY KEY,
+    nombre_proceso VARCHAR(100) NOT NULL,
+    fecha_inicio DATE,
+    fecha_fin DATE,
+    estado_proceso VARCHAR(50)
+);
+
+-- ==========================================
+-- 3. TABLAS DE USUARIOS Y ACCESOS
+-- ==========================================
+
+CREATE TABLE usuario (
+    id_usuario INT AUTO_INCREMENT PRIMARY KEY,
+    nombres VARCHAR(100) NOT NULL,
+    usuario VARCHAR(50) NOT NULL UNIQUE,
+    contraseña VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) NOT NULL,
+    id_rol INT,
+    FOREIGN KEY (id_rol) REFERENCES rol(id_rol) ON DELETE SET NULL
+);
+
+CREATE TABLE permiso_rol (
+    id_rol INT,
+    id_permiso INT,
+    PRIMARY KEY (id_rol, id_permiso),
+    FOREIGN KEY (id_rol) REFERENCES rol(id_rol) ON DELETE CASCADE,
+    FOREIGN KEY (id_permiso) REFERENCES permiso(id_permiso) ON DELETE CASCADE
+);
+
+CREATE TABLE historial_password (
+    id_historial INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    contraseña_anterior VARCHAR(100),
+    fecha_cambio DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- 4. TABLA DE POSTULANTES (Estructura Final)
+-- ==========================================
+
+CREATE TABLE postulante (
+    id_postulante INT AUTO_INCREMENT PRIMARY KEY,
+    dni VARCHAR(8) NOT NULL UNIQUE,
+    nombres VARCHAR(100) NOT NULL,
+    apellidos VARCHAR(100) NOT NULL,
+    correo VARCHAR(100),
+    telefono VARCHAR(15),
+    direccion VARCHAR(200),
+    cargo VARCHAR(50),
+    modalidad VARCHAR(50),
+    observaciones TEXT,
+    ruta_cv VARCHAR(255),
+    estado VARCHAR(20) DEFAULT 'Pendiente',
+    fecha_registro DATETIME DEFAULT CURRENT_TIMESTAMP,
+    usuario_registro VARCHAR(100) -- Columna de Auditoría
+);
+
+-- ==========================================
+-- 5. GESTIÓN DE DOCUMENTOS Y LOGS
+-- ==========================================
+
+CREATE TABLE carga_documento (
+    id_carga INT AUTO_INCREMENT PRIMARY KEY,
+    id_postulante INT,
+    tipo_documento VARCHAR(100),
+    nombre_archivo VARCHAR(255),
+    ruta_archivo VARCHAR(255),
+    estado VARCHAR(20) DEFAULT 'Pendiente',
+    fecha_subida TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (id_postulante) REFERENCES postulante(id_postulante) ON DELETE CASCADE
+);
+
+CREATE TABLE visualizacion_log (
+    id_visualizacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_carga INT,
+    usuario_visor VARCHAR(100),
+    fecha_vista DATETIME DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT fk_documento_vis FOREIGN KEY (id_carga) 
+        REFERENCES carga_documento(id_carga) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- 6. EVALUACIONES Y SEGUIMIENTO
+-- ==========================================
+
+CREATE TABLE evaluacion (
+    id_evaluacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_postulante INT,
+    id_usuario INT, -- Evaluador
+    tipo_evaluacion VARCHAR(100),
+    puntaje INT,
+    resultado VARCHAR(50),
+    nivel_riesgo VARCHAR(20),
+    observacion TEXT,
+    estado_obs VARCHAR(20) DEFAULT 'Pendiente',
+    fecha_eval DATE,
+    FOREIGN KEY (id_postulante) REFERENCES postulante(id_postulante) ON DELETE CASCADE,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE SET NULL
+);
+
+CREATE TABLE asignacion (
+    id_asignacion INT AUTO_INCREMENT PRIMARY KEY,
+    id_postulante INT,
+    id_proceso INT,
+    fecha_asignacion DATE,
+    FOREIGN KEY (id_postulante) REFERENCES postulante(id_postulante) ON DELETE CASCADE,
+    FOREIGN KEY (id_proceso) REFERENCES proceso_seleccion(id_proceso) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- 7. AUDITORÍA GENERAL
+-- ==========================================
+
+CREATE TABLE historial (
+    id_historial INT AUTO_INCREMENT PRIMARY KEY,
+    id_usuario INT,
+    accion VARCHAR(100) NOT NULL,
+    fecha DATE,
+    hora TIME,
+    FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario) ON DELETE CASCADE
+);
+
+-- ==========================================
+-- 8. DATOS INICIALES
+-- ==========================================
+
+INSERT INTO rol (nombre_rol) VALUES ('Administrador'), ('Analista RRHH');
+
+INSERT INTO permiso (descripcion) VALUES 
+('Ver Dashboard'), ('Registrar Postulante'), ('Modificar Postulante'), ('Gestionar Usuarios');
+
+INSERT INTO permiso_rol (id_rol, id_permiso) VALUES (1,1), (1,2), (1,3), (1,4);
+
+INSERT INTO usuario (nombres, usuario, contraseña, correo, id_rol) 
+VALUES ('Administrador ONPE', 'admin_onpe', 'clave123', 'admin@onpe.gob.pe', 1);
+
+INSERT INTO estado (nombre_estado) VALUES 
+('Pendiente'), ('En Evaluación'), ('Aprobado'), ('Observado'), ('Desaprobado');
+
+SET FOREIGN_KEY_CHECKS = 0;
+TRUNCATE TABLE visualizacion_log;
+TRUNCATE TABLE carga_documento;
+TRUNCATE TABLE evaluacion;
+TRUNCATE TABLE asignacion;
+TRUNCATE TABLE historial;
+TRUNCATE TABLE postulante;
+SET FOREIGN_KEY_CHECKS = 1;
