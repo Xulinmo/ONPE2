@@ -95,20 +95,28 @@
                                 </select>
                             </div>
 
-                            <div class="col-lg-4">
-                                <label class="form-label fw-semibold">Puntaje</label>
-                                <input type="number" name="puntaje" class="form-control" placeholder="0 - 100" min="0" max="100" required>
-                            </div>
+                           <div class="col-lg-4">
+                                    <label class="form-label fw-semibold">Puntaje</label>
+                                    <input type="number" 
+                                           name="puntaje" 
+                                           id="puntaje" 
+                                           class="form-control" 
+                                           placeholder="0 - 100" 
+                                           min="0" max="100" 
+                                           required 
+                                           oninput="validarCoherencia()">
+                                </div>
 
-                            <div class="col-lg-4">
-                                <label class="form-label fw-semibold">Resultado</label>
-                                <select name="resultado" class="form-select" required>
-                                    <option value="" disabled selected>Seleccionar resultado</option>
-                                    <option value="Aprobado">Aprobado</option>
-                                    <option value="Observado">Observado</option>
-                                    <option value="Rechazado">Rechazado</option>
-                                </select>
-                            </div>
+                                <div class="col-lg-4">
+                                    <label class="form-label fw-semibold">Resultado</label>
+                                    <select name="resultado" id="resultado" class="form-select" required onchange="validarCoherencia()">
+                                        <option value="" disabled selected>Seleccionar resultado</option>
+                                        <option value="Aprobado">Aprobado</option>
+                                        <option value="Observado">Observado</option>
+                                        <option value="Rechazado">Rechazado</option>
+                                    </select>
+                                    <div class="invalid-feedback fw-bold" id="error_resultado">Seleccione un resultado coherente.</div>
+                                </div>
 
                             <div class="col-lg-6">
                                 <label class="form-label fw-semibold">Fecha de Evaluación</label>
@@ -137,5 +145,31 @@
         </div>
     </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+                                        function validarCoherencia() {
+                                            var inputPuntaje = document.getElementById('puntaje');
+                                            var selectResultado = document.getElementById('resultado');
+                                            var cajaError = document.getElementById('error_resultado');
+
+                                            selectResultado.setCustomValidity('');
+
+                                            var nota = parseInt(inputPuntaje.value);
+                                            var estado = selectResultado.value;
+
+                                            if (!isNaN(nota) && estado !== '') {
+
+                                                var notaMinima = 65;
+
+                                                if (nota < notaMinima && estado === 'Aprobado') {
+                                                    selectResultado.setCustomValidity('Incoherencia');
+                                                    cajaError.innerHTML = '¡Contradicción! No puede marcar <strong>Aprobado</strong> con una nota menor a ' + notaMinima + '.';
+
+                                                } else if (nota >= notaMinima && estado === 'Rechazado') {
+                                                    selectResultado.setCustomValidity('Incoherencia');
+                                                    cajaError.innerHTML = '¡Contradicción! Tiene nota aprobatoria (' + nota + '), no debería ser <strong>Rechazado</strong>.';
+                                                }
+                                            }
+                                        }
+        </script>
 </body>
 </html>
