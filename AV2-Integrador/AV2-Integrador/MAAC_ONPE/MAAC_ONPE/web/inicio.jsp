@@ -91,7 +91,7 @@
             <a href="inicio-actividad.jsp" class="view-card">
                 <div class="view-icon"><i class="fa-solid fa-clock-rotate-left"></i></div>
                 <h3>Actividad Reciente</h3>
-                <p>Últimos movimientos y procesos del sistema</p>
+                <p>Últimos movimientos, procesos del sistema e historial</p>
             </a>
         </div>
     </div>
