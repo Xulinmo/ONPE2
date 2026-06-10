@@ -25,7 +25,7 @@
         </div>
         <a href="LogoutServlet" class="logout" style="text-decoration: none;"><i class="fa-solid fa-right-from-bracket"></i> Cerrar sesión</a>
     </aside>
-
+//
     <div class="main">
         <header class="header navbar navbar-expand-lg bg-white shadow-sm px-4">
             <h4 class="fw-bold m-0">Subir Documento Adicional</h4>
