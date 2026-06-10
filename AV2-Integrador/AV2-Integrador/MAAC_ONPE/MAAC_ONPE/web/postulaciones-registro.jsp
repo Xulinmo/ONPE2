@@ -86,10 +86,22 @@
                                            oninput="validarSoloNumeros(this)">
                                 </div>
 
-                                <div class="col-md-4">
-                                    <label class="form-label fw-bold small">Teléfono <span class="text-danger">*</span></label>
-                                    <input type="text" class="form-control" name="telefono" maxlength="9" minlength="9" pattern="[0-9]{9}" required
-                                           oninput="validarSoloNumeros(this)">
+                               <div class="col-md-4">
+                                    <label class="form-label fw-semibold small">Teléfono Móvil <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           name="telefono" 
+                                           id="telefono" 
+                                           required 
+                                           maxlength="9" 
+                                           minlength="9"
+                                           pattern="^9[0-9]{8}$" 
+                                           title="El celular debe tener exactamente 9 dígitos y empezar con el número 9."
+                                           oninput="this.value = this.value.replace(/[^0-9]/g, '')" 
+                                           placeholder="Ej: 987654321">
+                                    <div class="invalid-feedback">
+                                        Ingrese un número válido de 9 dígitos que comience con 9.
+                                    </div>
                                 </div>
 
                                 <div class="col-md-4">
@@ -117,12 +129,36 @@
                                     </select>
                                 </div>
 
-                                <div class="col-md-8">
-                                    <label class="form-label fw-bold small">Dirección de residencia <span class="text-danger">*</span></label>
-                                    <input type="text" name="direccion" class="form-control" placeholder="Av. / Jr. / Calle / Distrito" required>
+                               <div class="col-md-6">
+                                    <label class="form-label fw-semibold small">Dirección (Vía, Nro y Zona) <span class="text-danger">*</span></label>
+                                    <input type="text" 
+                                           class="form-control" 
+                                           name="calle_zona" 
+                                           required 
+                                           pattern="^([Aa]v\.?|[Aa]venida|[Jj]r\.?|[Jj]ir[oó]n|[Cc]alle|[Ss]ector|[Aa][Aa][Hh][Hh]|[Aa]\.[Hh]\.|[Uu]rb\.?)\s+.{5,}$" 
+                                           title="Inicie con Av., Jr., Calle, Sector, Urb. o AAHH, seguido de la dirección."
+                                           placeholder="Ej: Sector 3 Grupo 23 Mz. M Lt. 3">
+                                    <div class="invalid-feedback fw-bold">
+                                        ¡Formato incorrecto! Debe empezar con Av., Jr., Calle, Sector, Urb. o AAHH y tener datos reales.
+                                    </div>
                                 </div>
 
-                                <div class="col-md-4">
+                                <div class="col-md-3">
+                                    <label class="form-label fw-semibold small">Distrito <span class="text-danger">*</span></label>
+                                    <select class="form-select" name="distrito" required>
+                                        <option value="" disabled selected>Seleccionar...</option>
+                                        <option value="Villa María del Triunfo">Villa María del Triunfo</option>
+                                        <option value="Villa El Salvador">Villa El Salvador</option>
+                                        <option value="San Juan de Miraflores">San Juan de Miraflores</option>
+                                        <option value="Lurín">Lurín</option>
+                                        <option value="Pachacámac">Pachacámac</option>
+                                        <option value="Chorrillos">Chorrillos</option>
+                                        <option value="Santiago de Surco">Santiago de Surco</option>
+                                    </select>
+                                    <div class="invalid-feedback fw-bold">Seleccione uno.</div>
+                                </div>
+
+                                <div class="col-md-3">
                                     <label class="form-label fw-bold small">Estado Inicial <span class="text-danger">*</span></label>
                                     <select name="estado" class="form-select" required>
                                         <option value="Pendiente" selected>Pendiente (Por evaluar)</option>
@@ -131,14 +167,25 @@
                                     </select>
                                 </div>
 
-                                <%-- CORRECCIÓN CLAVE: Envío del archivo y Tipo de Documento --%>
                                 <div class="col-12 bg-light p-3 rounded border">
                                     <label class="form-label fw-bold text-danger"><i class="fa-solid fa-file-pdf"></i> Adjuntar Currículum Vitae (PDF) <span class="text-danger">*</span></label>
-                                    <input type="file" class="form-control" name="archivo_cv" accept=".pdf" required>
-                                    <%-- Campo oculto para que el Servlet sepa que este archivo es de tipo 'CV' --%>
+
+                                    <input type="file" 
+                                           class="form-control" 
+                                           name="archivo_cv" 
+                                           accept="application/pdf, .pdf" 
+                                           required
+                                           onchange="
+                                                   if (this.files.length > 0 && !this.files[0].name.toLowerCase().endsWith('.pdf')) {
+                                                       this.setCustomValidity('Formato inválido');
+                                                   } else {
+                                                       this.setCustomValidity('');
+                                                   }">
+
                                     <input type="hidden" name="tipo_doc" value="Currículum Vitae">
-                                    <div class="invalid-feedback">Debe adjuntar el archivo PDF para completar el registro.</div>
+                                    <div class="invalid-feedback fw-bold">¡Error! Seleccione estrictamente un documento en formato PDF (.pdf).</div>
                                 </div>
+
 
                                 <div class="col-12">
                                     <label class="form-label fw-bold small text-muted">Observaciones Adicionales</label>
