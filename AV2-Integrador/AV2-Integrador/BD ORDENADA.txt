@@ -3,6 +3,7 @@ DROP DATABASE IF EXISTS onpe_maac;
 CREATE DATABASE onpe_maac;
 USE onpe_maac;
 
+--
 -- ==========================================
 -- 2. TABLAS MAESTRAS (Sin dependencias)
 -- ==========================================
