@@ -22,7 +22,11 @@ COPY --from=build /app/target/MAAC_ONPE.war /usr/local/tomcat/webapps/ROOT.war
 RUN mkdir -p /usr/local/tomcat/webapps/ROOT/uploads
 
 # Puerto que usa Tomcat
+RUN echo '#!/bin/bash\n\
+PORT=${PORT:-8080}\n\
+sed -i "s/port=\"8080\"/port=\"$PORT\"/" /usr/local/tomcat/conf/server.xml\n\
+exec catalina.sh run' > /start.sh && chmod +x /start.sh
+
 EXPOSE 8080
 
-# Iniciar Tomcat
-CMD ["catalina.sh", "run"]
+CMD ["/start.sh"]
